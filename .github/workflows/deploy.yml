@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2024 Ledger SAS
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: python package deployment
+
+on:
+    workflow_call:
+      inputs:
+        environment:
+          required: true
+          type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: 'pip'
+    - run: |
+        pip install tox
+    - name: Lint
+      run: |
+        tox -e doc

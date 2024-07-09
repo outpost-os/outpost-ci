@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2024 Ledger SAS
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: python unit testing
+
+on:
+    workflow_call:
+      inputs:
+        python-version:
+          required: true
+          type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  unittests:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: 'pip'
+    - run: |
+        pip install tox
+    - name: execute unit-test
+      run: |
+        tox -e unittests
