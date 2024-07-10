@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # Outpost-OS reusable workflows for Python packages
 
+[![REUSE status](https://api.reuse.software/badge/github.com/outpost-os/pipeline-python)](https://api.reuse.software/info/github.com/outpost-os/pipeline-python)
+
 ## Introduction
 
 This repository hold the python-related reusable workflows in order to limit redundancy between each python package CI/CD usage.
