@@ -1,4 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2024 Ledger SAS
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Outpost-OS reusable workflows for Python packages
+
+[![REUSE status](https://api.reuse.software/badge/github.com/outpost-os/pipeline-python)](https://api.reuse.software/info/github.com/outpost-os/pipeline-python)
 
 ## Introduction
 
