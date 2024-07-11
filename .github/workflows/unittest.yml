@@ -37,3 +37,7 @@ jobs:
     - name: execute unit-test
       run: |
         tox -e unittests
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
