@@ -37,10 +37,11 @@ jobs:
     - name: execute unit-test
       run: |
         tox -e unittests
-    - name: Upload coverage reports to Codecov
+    - name: Upload coverage reports to Codecov, on ubuntu only
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       uses: codecov/codecov-action@v4
       with:
         working-directory: ${{github.workspace}}
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ${{github.workspace}}/.coverage
+        file: ${{github.workspace}}/coverage.xml
         verbose: true
