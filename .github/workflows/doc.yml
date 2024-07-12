@@ -28,7 +28,6 @@ jobs:
         cache: 'pip'
     - run: |
         pip install tox
-
-    - name: Lint
+    - name: Doc
       run: |
         tox -e docs
