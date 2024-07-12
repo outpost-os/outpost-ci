@@ -37,7 +37,7 @@ jobs:
     - name: execute unit-test
       run: |
         tox -e unittests
-    - name: Upload coverage reports to Codecov, on ubu 3.10
+    - name: Upload coverage reports to Codecov, on ubuntu only
       if: ${{ matrix.os == 'ubuntu-latest' }}
       uses: codecov/codecov-action@v4
       with:
