@@ -1,0 +1,94 @@
+# SPDX-FileCopyrightText: 2024 Ledger SAS
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Upload Python Package to jfrog
+
+on:
+    workflow_call:
+      inputs:
+        environment:
+          required: true
+          type: string
+        runner:
+          required: true
+          type: string
+        python-version:
+          required: true
+          type: string
+        build-name:
+          required: true
+          type: string
+        module-name:
+          required: true
+          type: string
+        repo-name:
+          required: true
+          type: string
+        virtual-repo-name:
+          required: true
+          type: string
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: ${{ inputs.runner }}
+    environment: ${{ inputs.environment }}
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install build basics
+        run: |
+          pip install build wheel-filename blob
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: build package
+        run: python3 -m build . --sdist --wheel
+      - name: get back local build version
+        id: get_pkg_version
+        run: |
+          from wheel_filename import parse_wheel_filename
+          import glob
+          import os
+          from random import choices
+          from string import ascii_letters
+
+          whl = str(glob.glob('dist/*.whl')[0]);
+          pwf = parse_wheel_filename('dist/' + whl);
+          with open(os.environ["GITHUB_OUTPUT"], "a") as gh_output:
+             delimiter = "".join(choices(ascii_letters, k=16))
+             gh_output.writelines([
+             f"pkg_version<<{delimiter}\n",
+             f"{pwf.version}\n",
+             delimiter + "\n",
+          ])
+        shell: python
+      - name: Login to JFrog Ledger
+        uses: LedgerHQ/actions-security/actions/jfrog-login@actions/jfrog-login-1
+      - name: upload package
+        run: jf rt u --build-name=${{ inputs.build-name }} --build-number=1 --module=${{ inputs.module-name }} 'dist/*.tar.gz' ${{ inputs.repo-name }}/${{ inputs.repo-name }}/
+      - name: Attest
+        id: attest
+        uses: LedgerHQ/actions-security/actions/attest@actions/attest-1
+        with:
+          subject-path: 'dist/*.tar.gz'
+          push-to-registry: false
+      - name: set jfrog Repo URL
+        run: jf pipc --global --repo-resolve=${{ inputs.virtual-repo-name }}
+      - name: test install from jfrog
+        run: |
+          jf pip install ${{ inputs.module-name }}==${{ steps.get_pkg_version.outputs.pkg_version }}
+          pip show ${{ inputs.module-name }}
