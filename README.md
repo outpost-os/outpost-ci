@@ -28,6 +28,7 @@ The following workflows exists:
    - doc.yml: built for running tox docs target
    - unittest.yml: built for executing tox unittests target
    - lint.yml: built for executing tox lint target
+   - publish.yml: publish and attest build and dev versions using jfrog
 
 ## reusable workflows usage
 
@@ -43,3 +44,35 @@ uses: outpost-os/pipeline-python/.github/workflows/lint.yml@v1
     with:
       python-version: '3.12'
 ```
+
+## Jfrog publication
+
+In order to publish to Jfrog, given that the calling repository is properly configured in terms of OICD with the Artifactory instance, 
+using the publication workflow would be using such a syntax:
+
+
+```
+name: Upload Python Package to jfrog
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  pubhlish:
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+    uses: outpost-os/pipeline-python/.github/workflows/publish.yml@main
+    with:
+      environment: local_publication_env_name
+      runner: runner_tag
+      python-version: '3.10'
+      build-name: package-build-name
+      module-name: package-name # used by pip install
+      repo-name: publication-repo-name
+      virtual-repo-name: pip-install-repo-name
+```
+
